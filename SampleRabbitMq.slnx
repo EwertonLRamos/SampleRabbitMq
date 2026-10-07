@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SampleRabbitMq.Consumer/SampleRabbitMq.Consumer.csproj" />
+  <Project Path="SampleRabbitMq.Models/SampleRabbitMq.Models.csproj" />
+  <Project Path="SampleRabbitMq.Producer/SampleRabbitMq.Producer.csproj" />
+</Solution>
