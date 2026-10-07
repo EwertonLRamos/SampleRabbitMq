@@ -22,7 +22,13 @@ var factory = new ConnectionFactory()
 };
 
 await using var connection = await factory.CreateConnectionAsync();
-await using var channel = await connection.CreateChannelAsync();
+
+var channelOptions = new CreateChannelOptions(
+    publisherConfirmationsEnabled: true,
+    publisherConfirmationTrackingEnabled: true
+);
+
+await using var channel = await connection.CreateChannelAsync(channelOptions);
 
 await channel.ExchangeDeclareAsync(
     exchange: dlxName, 
@@ -98,16 +104,23 @@ async Task PublishMessageAsync(Sample? sample)
         ContentType = "application/json",
         ContentEncoding = "utf-8"
     };
+    try
+    {
+        await channel.BasicPublishAsync(
+            exchange: exchangeName,
+            routingKey: routingKey,
+            mandatory: true,
+            basicProperties: properties,
+            body: body
+        );
 
-    await channel.BasicPublishAsync(
-        exchange: exchangeName,
-        routingKey: routingKey,
-        mandatory: false,
-        basicProperties: properties,
-        body: body
-    );
-
-    Console.WriteLine($"Mensagem enviada: {json}");
+        Console.WriteLine($"Mensagem enviada: {json}");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erro ao publicar mensagem: {ex.Message}");
+        throw;
+    }
 }
 
 var qtdSamples = Random.Shared.Next(0, 4);
